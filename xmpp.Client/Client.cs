@@ -88,8 +88,6 @@ internal class Client : IXmppClient, IDisposable
             {
                 throw new Exception("Not connect server");
             }
-
-            await _client.SendPresenceAsync(Show.Chat, msg);
             await _client.SendChatMessageAsync(contact, msg);
         }
         catch (Exception ex)

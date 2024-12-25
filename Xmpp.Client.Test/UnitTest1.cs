@@ -15,14 +15,15 @@ namespace Xmpp.Client.Test
             var client = ClientExtension.Get();
             await client.Connect(conf =>
             {
-                conf.User = "test_test2";
-                conf.Password = "1li1hyf";
-                conf.Domain = "79.141.65.66";
+                conf.User = "test";
+                conf.Password = "test";
+                conf.Domain = "localhost";
             });
 
             while (true)
             {
-                await client.SendMessage("test_test2", $"test message id #{Guid.NewGuid()}");
+                await client.SendMessage("test2@localhost", $"test message id #{Guid.NewGuid()}");
+                Thread.Sleep(TimeSpan.FromSeconds(2));
             }
 
             Assert.True(true);
