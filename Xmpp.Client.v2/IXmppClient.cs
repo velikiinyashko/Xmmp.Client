@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using Matrix;
-using Matrix.Xmpp.Client;
+using XmppDotNet.Xmpp.Client;
 
 
-namespace Xmpp.Client
+namespace Xmpp.Client.v2
 {
     public interface IXmppClient
     {

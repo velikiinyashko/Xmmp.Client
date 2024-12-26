@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xmpp.Client", "xmpp.Client\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xmpp.Client.Test", "Xmpp.Client.Test\Xmpp.Client.Test.csproj", "{69D93C4D-785B-40CD-99E9-5BB5A91476A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xmpp.Client.v2", "Xmpp.Client.v2\Xmpp.Client.v2.csproj", "{C6EF51BF-AC2F-4B57-B682-B8BF7A7DFE2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{69D93C4D-785B-40CD-99E9-5BB5A91476A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69D93C4D-785B-40CD-99E9-5BB5A91476A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69D93C4D-785B-40CD-99E9-5BB5A91476A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6EF51BF-AC2F-4B57-B682-B8BF7A7DFE2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6EF51BF-AC2F-4B57-B682-B8BF7A7DFE2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6EF51BF-AC2F-4B57-B682-B8BF7A7DFE2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6EF51BF-AC2F-4B57-B682-B8BF7A7DFE2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

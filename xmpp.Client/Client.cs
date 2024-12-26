@@ -1,26 +1,22 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
+using System.Security.Authentication;
 using System.Threading.Tasks;
-using Matrix;
-using Matrix.Extensions.Client.Message;
-using Matrix.Extensions.Client.Roster;
-using Matrix.Network;
+using Matrix.Net;
 using Matrix.Xmpp;
 using Matrix.Xmpp.Client;
+using Matrix.Xmpp.Sasl;
 
 
 namespace Xmpp.Client;
 
 internal class Client : IXmppClient, IDisposable
 {
-    private XmppClient _client;
+    private XmppClient _client = new();
     private readonly CompositeDisposable _disposable = new();
     public ISubject<string> MessageHandler { get; set; }
-    public SessionState State { get; set; }
 
     public Client()
     {
@@ -36,65 +32,41 @@ internal class Client : IXmppClient, IDisposable
         Configuration configuration = new Configuration();
         config(configuration);
 
-        _client = new XmppClient
+        _client.SetUsername(configuration.User);
+        _client.SetXmppDomain(configuration.Domain);
+        _client.Password = configuration.Password;
+
+        _client.Status = "I'm here";
+        _client.StartTls = true;
+        _client.AutoReplyToPing = true;
+        _client.PreferredSsoSaslMechanism = SaslMechanism.Plain;
+        _client.Transport = Transport.Socket;
+        _client.TlsProtocols = SslProtocols.Tls12;
+        _client.OnValidateCertificate += (sender, e) => { e.AcceptCertificate = true; };
+
+        _client.OnPresence += (Sender, e) =>
         {
-            Username = configuration.User,
-            Password = configuration.Password,
-            XmppDomain = configuration.Domain,
-            CertificateValidator = new AlwaysAcceptCertificateValidator()
+            Debug.WriteLine($"OnPresence from {e.Presence.From}");
+            Debug.WriteLine($"Status {e.Presence.Status}");
+            Debug.WriteLine($"Show type {e.Presence.Show}");
+            Debug.WriteLine($"Priority {e.Presence.Priority}");
         };
 
-        _client.XmppSessionState.Subject.Subscribe(async ss =>
+        _client.OnMessage += (sender, e) =>
         {
-            Debug.WriteLine($"Status connect: {State}");
-            State = ss;
-        }).DisposeWith(_disposable);
+            Debug.WriteLine($"OnMessage from {e.Message.From}");
+            Debug.WriteLine($"Body {e.Message.Body}");
+            Debug.WriteLine($"Type {e.Message.Type}");
+        };
 
-        _client.XmppXElementStreamObserver.Subscribe(h => { Debug.WriteLine(h); }).DisposeWith(_disposable);
-
-        _client.XmppXElementStreamObserver.Where(el => el is Message)
-            .Subscribe(msg =>
-            {
-                if (msg is Message s)
-                {
-                    MessageHandler.OnNext(s.Body);
-                }
-            }).DisposeWith(_disposable);
-
-
-        await _client.ConnectAsync();
-
-        while (true)
-        {
-            Debug.WriteLine($"Check status: {State}");
-            if (State == SessionState.Binded)
-            {
-                await _client.RequestRosterAsync();
-                return;
-            }
-
-            if (timer.Elapsed < TimeSpan.FromMinutes(1))
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
-            else
-            {
-                await _client.DisconnectAsync();
-                throw new Exception("Timeout connection");
-            }
-        }
+        _client.Open();
     }
 
     public async Task SendMessage(string contact, string msg)
     {
         try
         {
-            if (State < SessionState.Binded)
-            {
-                throw new Exception("Not connect server");
-            }
-
-            await _client.SendAsync(new Message()
+            _client.Send(new Message()
             {
                 Type = MessageType.Chat,
                 To = contact,
@@ -112,23 +84,9 @@ internal class Client : IXmppClient, IDisposable
     {
         try
         {
-            if (State < SessionState.Binded)
-            {
-                throw new Exception("Not connect server");
-            }
-
             var request = new VcardIq { Type = IqType.Get, To = contact };
-            var result = await _client.SendIqAsync(request);
+            var result = _client.Send(request);
 
-            if (result.Type == IqType.Error)
-            {
-                throw new Exception(result.Error.Text);
-            }
-
-            if (result.Type == IqType.Result)
-            {
-                return request;
-            }
 
             return null;
         }
@@ -141,7 +99,8 @@ internal class Client : IXmppClient, IDisposable
 
     public void Dispose()
     {
-        _client.DisconnectAsync().GetAwaiter().GetResult();
+        _client.Close();
+        _client.Dispose();
         _disposable?.Dispose();
     }
 }

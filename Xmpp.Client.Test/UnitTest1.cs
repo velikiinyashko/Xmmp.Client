@@ -2,6 +2,8 @@ using System.Diagnostics;
 
 namespace Xmpp.Client.Test
 {
+    using Configuration = Xmpp.Client.v2.Configuration;
+
     public class Tests
     {
         [SetUp]
@@ -26,15 +28,15 @@ namespace Xmpp.Client.Test
         [Test]
         public async Task Test1()
         {
-            var client = ClientExtension.Get();
-            await client.Connect(gz);
+            var client = Xmpp.Client.v2.ClientExtension.Get();
+            await client.Connect(local);
 
 
             client.MessageHandler.Subscribe(msg => { Debug.WriteLine(msg); });
 
             while (true)
             {
-                await client.SendMessage("test_test2@openfire", $"test message id #{Guid.NewGuid()}");
+                // await client.SendMessage("test2@localhost", $"test message id #{Guid.NewGuid()}");
                 Thread.Sleep(TimeSpan.FromSeconds(2));
             }
 

@@ -56,14 +56,8 @@
         <Reference Include="DynamicData, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
           <HintPath>..\packages\DynamicData.9.0.4\lib\net462\DynamicData.dll</HintPath>
         </Reference>
-        <Reference Include="Matrix, Version=2.4.5.0, Culture=neutral, PublicKeyToken=5562c5c831055d45, processorArchitecture=MSIL">
-          <HintPath>..\packages\Matrix.vNext.2.4.5\lib\net46\Matrix.dll</HintPath>
-        </Reference>
-        <Reference Include="Matrix.Extensions, Version=2.4.5.0, Culture=neutral, PublicKeyToken=5562c5c831055d45, processorArchitecture=MSIL">
-          <HintPath>..\packages\Matrix.vNext.Extensions.2.4.5\lib\net46\Matrix.Extensions.dll</HintPath>
-        </Reference>
-        <Reference Include="Matrix.Srv, Version=2.4.5.0, Culture=neutral, PublicKeyToken=5562c5c831055d45, processorArchitecture=MSIL">
-          <HintPath>..\packages\Matrix.vNext.Srv.2.4.5\lib\net46\Matrix.Srv.dll</HintPath>
+        <Reference Include="Matrix, Version=2.1.0.8, Culture=neutral, PublicKeyToken=0120f1df71ff86bc, processorArchitecture=MSIL">
+          <HintPath>..\packages\MatriX.2.1.0.8\lib\net45\Matrix.dll</HintPath>
         </Reference>
         <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
           <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
