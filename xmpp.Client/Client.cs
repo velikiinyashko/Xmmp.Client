@@ -5,12 +5,13 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using XmppDotNet;
-using XmppDotNet.Extensions.Client.Message;
-using XmppDotNet.Extensions.Client.Presence;
-using XmppDotNet.Transport.Socket;
-using XmppDotNet.Xmpp;
-using XmppDotNet.Xmpp.Client;
+using Matrix;
+using Matrix.Extensions.Client.Message;
+using Matrix.Extensions.Client.Roster;
+using Matrix.Network;
+using Matrix.Xmpp;
+using Matrix.Xmpp.Client;
+
 
 namespace Xmpp.Client;
 
@@ -35,30 +36,31 @@ internal class Client : IXmppClient, IDisposable
         Configuration configuration = new Configuration();
         config(configuration);
 
-        _client = new XmppClient(conf =>
+        _client = new XmppClient
         {
-            conf.UseSocketTransport()
-                .WithCertificateValidator(new AlwaysAcceptCertificateValidator());
-            conf.AutoReconnect = true;
-        })
-        {
-            Jid = $"{configuration.User}@{configuration.Domain}",
+            Username = configuration.User,
             Password = configuration.Password,
-            Timeout = 1000,
+            XmppDomain = configuration.Domain,
+            CertificateValidator = new AlwaysAcceptCertificateValidator()
         };
 
-        _client.StateChanged.Where(entity => entity == SessionState.Binded)
-            .Subscribe(ss =>
+        _client.XmppSessionState.Subject.Subscribe(async ss =>
+        {
+            Debug.WriteLine($"Status connect: {State}");
+            State = ss;
+        }).DisposeWith(_disposable);
+
+        _client.XmppXElementStreamObserver.Subscribe(h => { Debug.WriteLine(h); }).DisposeWith(_disposable);
+
+        _client.XmppXElementStreamObserver.Where(el => el is Message)
+            .Subscribe(msg =>
             {
-                Debug.WriteLine($"Status connect: {State}");
-                State = ss;
+                if (msg is Message s)
+                {
+                    MessageHandler.OnNext(s.Body);
+                }
             }).DisposeWith(_disposable);
 
-        _client.XmppXElementReceived.Subscribe(s =>
-        {
-            //
-            System.Diagnostics.Debug.WriteLine(s);
-        }).DisposeWith(_disposable);
 
         await _client.ConnectAsync();
 
@@ -66,8 +68,11 @@ internal class Client : IXmppClient, IDisposable
         {
             Debug.WriteLine($"Check status: {State}");
             if (State == SessionState.Binded)
+            {
+                await _client.RequestRosterAsync();
                 return;
-            
+            }
+
             if (timer.Elapsed < TimeSpan.FromMinutes(1))
             {
                 Thread.Sleep(TimeSpan.FromSeconds(1));
@@ -88,7 +93,13 @@ internal class Client : IXmppClient, IDisposable
             {
                 throw new Exception("Not connect server");
             }
-            await _client.SendChatMessageAsync(contact, msg);
+
+            await _client.SendAsync(new Message()
+            {
+                Type = MessageType.Chat,
+                To = contact,
+                Body = msg
+            });
         }
         catch (Exception ex)
         {

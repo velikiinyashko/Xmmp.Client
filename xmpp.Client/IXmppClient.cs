@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using XmppDotNet;
-using XmppDotNet.Xmpp.Client;
+using Matrix;
+using Matrix.Xmpp.Client;
+
 
 namespace Xmpp.Client
 {
